@@ -1,4 +1,4 @@
-# VoiceGuard 🛡️
+# VoiceGuard 
 ### AI-Powered Call Screening & Voice Authentication System
 
 VoiceGuard is an AI-powered call screening system that protects customers by automatically verifying the identity of every incoming caller before connecting them. Acting as an invisible layer between callers and customers, the system first detects whether a call is from an automated robocall, then confirms whether the caller is a registered and trusted employee. Only verified callers are connected — everyone else is blocked.
@@ -7,10 +7,7 @@ VoiceGuard is an AI-powered call screening system that protects customers by aut
 
 ## How It Works
 
-
-<img width="1082" height="1382" alt="Group 1 (3)" src="https://github.com/user-attachments/assets/a641deb9-717b-476c-a935-c65ee12d7cf9" />
-
-
+<img width="541" height="691" alt="Group 1 (3)" src="https://github.com/user-attachments/assets/a641deb9-717b-476c-a935-c65ee12d7cf9" />
 
 ---
 
@@ -61,16 +58,16 @@ pip install -r requirements.txt
 ```
 
 ### 3. Enroll verified callers
-Create a subfolder per person inside `enrollment/` and add `.wav` or `.mp3` voice samples:
+Create a subfolder per person inside `enrollment/` and add `.wav` or `.mp3` voice samples. More samples per person = better accuracy. Three or more is recommended.
+
 ```
 enrollment/
-  Joyce/
+  PersonA/
     sample1.wav
     sample2.wav
-  Aaron/
+  PersonB/
     sample1.wav
 ```
-More samples per person = better accuracy. Three or more is recommended.
 
 ### 4. Run the app
 ```bash
@@ -126,12 +123,6 @@ Key parameters can be adjusted in `app.py`:
 - **Voice Embeddings** — GE2E encoder (resemblyzer)
 - **Similarity Matching** — Cosine distance (scipy)
 - **Interface** — Gradio + Python
-
----
-
-## Team
-
-Built as a capstone project at the **University of Washington Global Innovation Exchange (GIX)**.
 
 ---
 
