@@ -206,18 +206,18 @@ def screen_robocall_file(robo_file):
 # ── HTML helpers ──────────────────────────────────────────────────────────────
 # Palette: navy=#0c1a3e  panel=#102044  border=#1e3460  sky=#5bb8d4  orange=#f7941d
 NAVY   = "#0c1a3e"
-PANEL  = "#102044"
-BORDER = "#1e3460"
+PANEL  = "#f4f8ff"
+BORDER = "#ccddf0"
 SKY    = "#5bb8d4"
 ORANGE = "#f7941d"
-MUTED  = "#5a7aaa"
+MUTED  = "#6a8aaa"
 FONT   = "'Open Sans', sans-serif"
 
 def verdict_html(verdict, name="", sim=0.0, robo_conf=0.0, is_robo=False, matched=False, msg=""):
     configs = {
-        "BLOCKED_ROBO":    ("#ef4444", "🤖", "CALL BLOCKED",    f"Robocall detected — {robo_conf:.1%} confidence",                    "#1a0000"),
-        "BLOCKED_UNKNOWN": ("#f59e0b", "🚫", "CALL BLOCKED",    f"Caller not in verified database — best match: {name} ({sim:.1%})", "#1a1000"),
-        "CONNECTED":       ("#10b981", "✅", "CALL CONNECTED",   f"Verified: {name} — {sim:.1%} voice similarity",                    "#001a10"),
+        "BLOCKED_ROBO":    ("#ef4444", "🤖", "CALL BLOCKED",    f"Robocall detected — {robo_conf:.1%} confidence",                    "#fef2f2"),
+        "BLOCKED_UNKNOWN": ("#f59e0b", "🚫", "CALL BLOCKED",    f"Caller not in verified database — best match: {name} ({sim:.1%})", "#fef2f2"),
+        "CONNECTED":       ("#10b981", "✅", "CALL CONNECTED",   f"Verified: {name} — {sim:.1%} voice similarity",                    "#f0fdf4"),
         "ERROR":           ("#6b7280", "⚠️", "ERROR",           msg,                                                                  PANEL),
     }
     color, icon, title, sub, bg = configs.get(verdict, configs["ERROR"])
@@ -225,7 +225,7 @@ def verdict_html(verdict, name="", sim=0.0, robo_conf=0.0, is_robo=False, matche
     bars = ""
     if verdict != "ERROR":
         robo_pct   = int(robo_conf * 100)
-        robo_color = "#ef4444" if is_robo else "#10b981"
+        robo_color = "#3b82f6"
         bars += f"""
         <div style="margin-top:8px;">
             <div style="display:flex;justify-content:space-between;align-items:center;
@@ -241,7 +241,7 @@ def verdict_html(verdict, name="", sim=0.0, robo_conf=0.0, is_robo=False, matche
         </div>"""
         if verdict != "BLOCKED_ROBO":
             sim_pct   = int(sim * 100)
-            sim_color = "#10b981" if matched else "#f59e0b"
+            sim_color = "#f59e0b"
             bars += f"""
         <div style="margin-top:10px;">
             <div style="display:flex;justify-content:space-between;align-items:center;
@@ -261,7 +261,7 @@ def verdict_html(verdict, name="", sim=0.0, robo_conf=0.0, is_robo=False, matche
     """ if bars else ""
 
     return f"""
-    <div style="
+    <div class="verdict-card" style="
         background:linear-gradient(135deg,{bg},{color}0a);
         border:1.5px solid {color}66;
         border-radius:14px; padding:28px 28px; text-align:center;
@@ -279,19 +279,19 @@ def verdict_html(verdict, name="", sim=0.0, robo_conf=0.0, is_robo=False, matche
 
 def pipeline_html(state="idle"):
     steps = [("📞","INCOMING"), ("🎙️","RECORD"), ("🤖","ROBO CHECK"), ("🧬","VOICE ID"), ("⚖️","DECISION")]
-    WHITE = "#cddcf9e3"
+    BASE = "#2e539cff"  # default blue for inactive steps
     color_map = {
-        "idle":      [WHITE]*5,
-        "robo":      [WHITE]*5,
-        "unknown":   [WHITE]*5,
-        "connected": [WHITE]*5,
+        "idle":      [BASE]*5,
+        "robo":      ["#10b981", "#10b981", "#ef4444", BASE, "#ef4444"],
+        "unknown":   ["#10b981", "#10b981", "#10b981", "#f59e0b", "#f59e0b"],
+        "connected": ["#10b981"]*5,
     }
     cols = color_map.get(state, color_map["idle"])
 
     items = ""
     for i, (icon, label) in enumerate(steps):
         c   = cols[i]
-        lit = c != WHITE
+        lit = c != BASE
         glow = f"box-shadow:0 0 12px {c}88;" if lit else ""
         items += f"""
         <div style="text-align:center;flex:1;min-width:0;">
@@ -300,10 +300,10 @@ def pipeline_html(state="idle"):
             <div style="font-size:9px;color:{c};font-family:{FONT};font-weight:700;
                         letter-spacing:1px;white-space:nowrap;">{label}</div>
         </div>
-        {"<div style='flex:0.25;text-align:center;color:" + WHITE + ";font-size:13px;padding-bottom:18px;'>──▶</div>" if i < len(steps)-1 else ""}
+        {"<div style='flex:0.25;text-align:center;color:" + BASE + ";font-size:13px;padding-bottom:18px;'>──▶</div>" if i < len(steps)-1 else ""}
         """
     return f"""
-    <div style="background:linear-gradient(90deg,{NAVY},{PANEL},{NAVY});
+    <div class="pipeline-wrap" style="background:transparent;
                 border:1px solid {BORDER};border-radius:12px;
                 padding:14px 20px;display:flex;align-items:center;
                 font-family:{FONT};gap:2px;">
@@ -317,8 +317,8 @@ CSS = """
 
 /* ── Base ── */
 body, .gradio-container {
-    background: #0c1a3e !important;
-    color: #d6e4f7 !important;
+    background: #ffffff !important;
+    color: #0c1a3e !important;
     font-family: 'Open Sans', sans-serif !important;
 }
 
@@ -333,7 +333,7 @@ body, .gradio-container {
 .gr-button-primary {
     background: linear-gradient(135deg, #f7941d, #d97a0a) !important;
     border: none !important;
-    color: #ffffff !important;
+    color: #0c1a3e !important;
     box-shadow: 0 4px 16px #f7941d44 !important;
 }
 .gr-button-primary:hover {
@@ -342,12 +342,12 @@ body, .gradio-container {
     transform: translateY(-1px) !important;
 }
 .gr-button-secondary {
-    background: #102044 !important;
-    border: 1px solid #5bb8d4 !important;
+    background: #ffffff !important;
+    border: 1px solid #ccddf0 !important;
     color: #5bb8d4 !important;
 }
 .gr-button-secondary:hover {
-    background: #1a3a6e !important;
+    background: #f0f9fc !important;
     box-shadow: 0 0 14px #5bb8d433 !important;
     transform: translateY(-1px) !important;
 }
@@ -355,17 +355,17 @@ body, .gradio-container {
 /* ── Labels & headings ── */
 h1, h2, h3, label, .label-wrap {
     font-family: 'Open Sans', sans-serif !important;
-    color: #a8c4e0 !important;
+    color: #0c1a3e !important;
     font-weight: 600 !important;
 }
 
 /* ── Text inputs & textareas ── */
 textarea, input[type="text"] {
-    background: #091428 !important;
-    color: #5bb8d4 !important;
+    background: #ffffff !important;
+    color: #0c1a3e !important;
     font-family: 'Open Sans', sans-serif !important;
     font-size: 13px !important;
-    border: 1px solid #1e3460 !important;
+    border: 1px solid #ccddf0 !important;
     border-radius: 8px !important;
     transition: border-color 0.2s !important;
 }
@@ -376,26 +376,43 @@ textarea:focus, input:focus {
 }
 
 /* ── Tabs ── */
-.tab-nav { border-bottom: 1px solid #1e3460 !important; }
+.tab-nav { border-bottom: 1px solid #ccddf0 !important; background:#ffffff !important; }
 .tab-nav button {
     font-family: 'Open Sans', sans-serif !important;
     font-size: 13px !important;
     font-weight: 600 !important;
-    color: #3a5a8a !important;
+    color: #6a8aaa !important;
     letter-spacing: 0.3px !important;
     transition: color 0.2s !important;
 }
-.tab-nav button:hover  { color: #7aaacf !important; }
+.tab-nav button:hover  { color: #0c1a3e !important; }
 .tab-nav button.selected {
     color: #f7941d !important;
     border-bottom: 2px solid #f7941d !important;
+    background:#ffffff !important;
 }
 
 /* ── Block panels ── */
-.gr-block, .gr-panel { background: #102044 !important; border-color: #1e3460 !important; }
+.gr-block, .gr-panel { background: #ffffff !important; border-color: #ccddf0 !important; }
 
 /* ── Audio component ── */
-.gr-audio { background: #091428 !important; border: 1px solid #1e3460 !important; border-radius: 8px !important; }
+.gr-audio { background: #ffffff !important; border: 1px solid #ccddf0 !important; border-radius: 8px !important; }
+
+/* ── Force textbox internals to stay white (fix blue fill in Pipeline Log) ── */
+.gr-textbox, .gr-textbox textarea, .gr-textbox input, .gr-form, .gr-box {
+    background: #ffffff !important;
+    color: #0c1a3e !important;
+    border-color: #ccddf0 !important;
+    box-shadow: none !important;
+}
+
+/* ── Equal-height columns ── */
+.gradio-row { align-items: stretch !important; }
+.gradio-row > .gradio-column {
+    display: flex !important;
+    flex-direction: column !important;
+}
+.gradio-row > .gradio-column > div { flex: 1 !important; }
 
 /* ── Hide Gradio footer ── */
 footer { display: none !important; }
@@ -405,50 +422,56 @@ enrolled_names = ", ".join(profiles.keys()) or "none"
 n_enrolled = len(profiles)
 
 HEADER = f"""
-<div style="text-align:center;padding:36px 0 18px;font-family:'Open Sans',sans-serif;
-            background:linear-gradient(180deg,#091428 0%,#0c1a3e 100%);">
+<div class="app-header" style="text-align:center;padding:36px 0 18px;font-family:'Open Sans',sans-serif;
+            background:linear-gradient(180deg,#ffffff 0%,#f4f8ff 100%);">
     <div style="font-size:11px;letter-spacing:4px;color:{ORANGE};margin-bottom:10px;
                 text-transform:uppercase;font-weight:700;">
         AI-Powered Call Screening System
     </div>
     <div style="font-size:48px;font-weight:800;letter-spacing:3px;
-                background:linear-gradient(90deg,{SKY} 0%,#ffffff 50%,{ORANGE} 100%);
+                background:linear-gradient(90deg,#17396d 0%,#0f5fa6 55%,#0b2a52 100%);
                 -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
                 line-height:1.1;">
         VOICEGUARD
     </div>
-    <div style="font-size:12px;color:{MUTED};margin-top:12px;letter-spacing:1.5px;font-weight:600;">
+    <div class="app-header-sub" style="font-size:12px;color:{NAVY};margin-top:12px;letter-spacing:1.5px;font-weight:600;">
         ROBOCALL DETECTION &nbsp;·&nbsp; VOICE IDENTITY VERIFICATION &nbsp;·&nbsp; ACCESS DECISION
     </div>
-    <div style="margin:18px auto 0;display:inline-flex;align-items:center;gap:10px;
-                background:#091428;border:1px solid #10b98155;border-radius:24px;
+    <div class="app-header-online" style="margin:18px auto 0;display:inline-flex;align-items:center;gap:10px;
+                background:#ffffff;border:1px solid #10b98155;border-radius:24px;
                 padding:8px 22px;font-size:12px;color:#10b981;font-family:'Open Sans',sans-serif;font-weight:600;">
         <span style="width:7px;height:7px;border-radius:50%;background:#10b981;
                      display:inline-block;box-shadow:0 0 8px #10b981;flex-shrink:0;"></span>
         SYSTEM ONLINE &nbsp;·&nbsp; {n_enrolled} enrolled caller(s):
-        <span style="color:{SKY};font-weight:700;">&nbsp;{enrolled_names}</span>
+        <span class="app-header-online-name" style="color:{NAVY};font-weight:700;">&nbsp;{enrolled_names}</span>
     </div>
 </div>
 """
 
 # ── Reusable sub-components ───────────────────────────────────────────────────
-HINT_STYLE = f"background:#091428;border:1px solid {BORDER};border-radius:8px;" \
+HINT_STYLE = f"background:#ffffff;border:1px solid {BORDER};border-radius:8px;" \
              f"padding:12px 18px;margin:10px 0;font-family:'Open Sans',sans-serif;" \
              f"font-size:12px;color:{MUTED};font-weight:400;line-height:1.6;"
 
-IDLE_CARD_LIVE = f"""
-<div style="background:#091428;border:1px solid {BORDER};border-radius:14px;
-            padding:40px 28px;text-align:center;font-family:'Open Sans',sans-serif;color:{BORDER};">
-    <div style="font-size:34px;margin-bottom:10px;">📡</div>
-    <div style="font-size:12px;letter-spacing:1.5px;font-weight:700;">AWAITING CALL</div>
-</div>"""
+IDLE_CARD_LIVE = (
+    f'<div class="idle-card" style="background:#ffffff;border:1px solid {BORDER};border-radius:14px;'
+    f'box-sizing:border-box;width:100%;height:100%;min-height:160px;'
+    f'display:flex;flex-direction:column;align-items:center;justify-content:center;'
+    f'font-family:{FONT};color:{MUTED};padding:24px;">'
+    f'<div style="font-size:34px;margin-bottom:10px;">📡</div>'
+    f'<div style="font-size:12px;letter-spacing:1.5px;font-weight:700;">AWAITING CALL</div>'
+    f'</div>'
+)
 
-IDLE_CARD_FILE = f"""
-<div style="background:#091428;border:1px solid {BORDER};border-radius:14px;
-            padding:40px 28px;text-align:center;font-family:'Open Sans',sans-serif;color:{BORDER};">
-    <div style="font-size:34px;margin-bottom:10px;">📁</div>
-    <div style="font-size:12px;letter-spacing:1.5px;font-weight:700;">AWAITING FILE</div>
-</div>"""
+IDLE_CARD_FILE = (
+    f'<div class="idle-card" style="background:#ffffff;border:1px solid {BORDER};border-radius:14px;'
+    f'box-sizing:border-box;width:100%;height:100%;min-height:160px;'
+    f'display:flex;flex-direction:column;align-items:center;justify-content:center;'
+    f'font-family:{FONT};color:{MUTED};padding:24px;">'
+    f'<div style="font-size:34px;margin-bottom:10px;">📁</div>'
+    f'<div style="font-size:11px;letter-spacing:1.5px;font-weight:700;">AWAITING FILE</div>'
+    f'</div>'
+)
 
 with gr.Blocks(css=CSS, title="VoiceGuard") as demo:
     gr.HTML(HEADER)
@@ -459,12 +482,12 @@ with gr.Blocks(css=CSS, title="VoiceGuard") as demo:
         # ── Tab 1: Live mic ───────────────────────────────────────────────────
         with gr.Tab("📞  Live Call Screening"):
             gr.HTML(f"""
-            <div style="{HINT_STYLE}border-left:3px solid {SKY};">
+            <div class="hint-box" style="{HINT_STYLE}border-left:3px solid {SKY};">
                 <span style="color:{SKY};font-weight:700;">HOW TO USE</span>
                 &nbsp;·&nbsp;
                 Click the microphone &rarr; speak your name &amp; purpose &rarr; hit Stop &rarr; press Screen Call
             </div>""")
-            with gr.Row():
+            with gr.Row(equal_height=True):
                 with gr.Column(scale=1):
                     mic_input  = gr.Audio(sources=["microphone"], type="numpy", label="🎙️ Caller Voice Input")
                     screen_btn = gr.Button("▶  SCREEN THIS CALL", variant="primary", size="lg")
@@ -480,12 +503,12 @@ with gr.Blocks(css=CSS, title="VoiceGuard") as demo:
         # ── Tab 2: Robocall file demo ─────────────────────────────────────────
         with gr.Tab("🤖  Robocall Demo"):
             gr.HTML(f"""
-            <div style="{HINT_STYLE}border-left:3px solid {ORANGE};">
+            <div class="hint-box" style="{HINT_STYLE}border-left:3px solid {ORANGE};">
                 <span style="color:{ORANGE};font-weight:700;">DEMO MODE</span>
                 &nbsp;·&nbsp;
                 Upload a pre-recorded robocall .wav/.mp3 &rarr; run through the detection pipeline &rarr; expect BLOCKED
             </div>""")
-            with gr.Row():
+            with gr.Row(equal_height=True):
                 with gr.Column(scale=1):
                     robo_file  = gr.Audio(sources=["upload"], type="filepath", label="📁 Upload Robocall Audio")
                     robo_btn   = gr.Button("🤖  RUN ROBOCALL THROUGH PIPELINE", variant="secondary", size="lg")
@@ -511,7 +534,7 @@ with gr.Blocks(css=CSS, title="VoiceGuard") as demo:
                     )
                 with gr.Column(scale=1):
                     gr.HTML(f"""
-                    <div style="background:#091428;border:1px solid {BORDER};border-radius:10px;
+                    <div class="enroll-card" style="background:#ffffff;border:1px solid {BORDER};border-radius:10px;
                                 padding:20px 24px;font-family:'Open Sans',sans-serif;
                                 font-size:12px;color:{MUTED};line-height:1.7;">
                         <div style="color:{SKY};font-size:13px;font-weight:700;
